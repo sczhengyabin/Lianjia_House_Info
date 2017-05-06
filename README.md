@@ -21,4 +21,4 @@
 
 ![](http://ww2.sinaimg.cn/large/0060lm7Tgy1fehp0in5uxj30b20adta7.jpg)
 
-##### 想要更多的数据，或者需要帮助的，联系 QQ: 751073876
+##### 想要更多的数据、需要帮助、爬虫小项目兼职，联系 QQ: [751073876](http://wpa.qq.com/msgrd?v=3&uin=751073876&site=qq&menu=yes)
