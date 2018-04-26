@@ -35,6 +35,7 @@ city_dict = {
     "南京": "nj",
     "合肥": "hf",
     "杭州": "hz", 
+    "佛山": "fs",
 }
 
 # 是否打印HTTP错误
@@ -45,8 +46,11 @@ ua = UserAgent()
 # 代理设置
 PROXY_HOST = "proxy.abuyun.com"
 PROXY_PORT = "9020"
-PROXY_USERNAME = 'XXXXXXXXXXXXXXXX'
-PROXY_PASSWORD = 'KKKKKKKKKKKKKKKK'
+PROXY_USERNAME = 'HR636P1V930DQ6UD'
+PROXY_PASSWORD = 'AE1985062FC5B784'
+
+# 百度地图API AK
+BAIDU_AK = ""
 
 def gen_proxies_from_cert(proxy_user, proxy_password):
     proxy_meta = "http://%(user)s:%(pass)s@%(host)s:%(port)s" % {
@@ -530,6 +534,26 @@ def get_transaction_detail_all(city, start=0, end=None):
         
     return df_trans_detail
 
+def encode_address(address):
+    http_url = "http://api.map.baidu.com/geocoder/v2/"
+    params = {
+        "address": address,
+        "ak": BAIDU_AK,
+        "output": "json"
+    }
+    try:
+        ret = requests.get(http_url, params=params)
+        o = json.loads(ret.text)
+        if o['status'] != 0:
+            print(ret.text)
+            print("[E]: 地址编码异常: {}，".format(address))
+            return None
+        longtitude = o['result']['location']['lng']
+        latitude = o['result']['location']['lat']
+        return longtitude, latitude
+    except Exception as e:
+        print("[E]: 地址编码错误，" + address + e)
+        return None
 
 ###########################################################
 # 总共四个步骤，依次运行。
@@ -537,7 +561,7 @@ def get_transaction_detail_all(city, start=0, end=None):
 ###########################################################
 
 # 设置城市, 更多城市根据链家网自行添加
-CITY = city_dict["成都"]
+CITY = city_dict["广州"]
 
 # 1.爬取城市的小区ID列表
 
@@ -619,3 +643,23 @@ for i in range(START, PART):
         pass
     print("\nfile {} written.".format(i+1))
 
+# 5.根据小区地址，利用百度地图API进行地理编码，获取经纬度信息
+
+# print("开始进行地理编码...")
+# print("加载小区信息 ...")
+# df_xiaoqu_info = pd.read_csv("./{}_info.csv".format(CITY), index_col=1)
+# xiaoqu_list = df_xiaoqu_info.index.values.tolist()
+
+# for count, xiaoqu in enumerate(xiaoqu_list[:100]):
+#     address = df_xiaoqu_info.loc[xiaoqu, '地址']
+#     address = CITY + address
+#     longtitude, latitude = encode_address(address)
+#     if longtitude is None:
+#         continue
+#     df_xiaoqu_info.loc[xiaoqu, '坐标-经度'] = longtitude
+#     df_xiaoqu_info.loc[xiaoqu, '坐标-纬度'] = latitude
+#     sys.stdout.write("\r已完成: {}/{}".format(count, len(xiaoqu_list)))
+# print("保存数据...")
+# writer = pd.ExcelWriter("{}_info.xlsx".format(CITY))
+# df_xiaoqu_info.to_excel(writer, "小区信息")
+# writer.save()
